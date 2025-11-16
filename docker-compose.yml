@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  clooney-agent:
+    build: .
+    container_name: clooney-agent
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - TARGET_URL=${TARGET_URL:-https://app.asana.com/}
+      - OUTPUT_DIR=/app/output
+      - HEADLESS=true
+    volumes:
+      - ./output:/app/output
+      - ./config:/app/config
+    networks:
+      - clooney-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: clooney-postgres
+    environment:
+      - POSTGRES_USER=clooney
+      - POSTGRES_PASSWORD=clooney
+      - POSTGRES_DB=asana_clone
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - clooney-network
+
+volumes:
+  postgres_data:
+
+
+networks:
+  clooney-network:
+    driver: bridge
